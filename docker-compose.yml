@@ -1,0 +1,46 @@
+version: "3.9"
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:15.1-alpine
+    restart: always
+    networks:
+      - app-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/data/postgres
+
+  cache:
+    image: redis:7.0-alpine
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data/redis
+
+  bus:
+    image: rabbitmq:3.10-alpine
+    restart: always
+    networks:
+      - app-network
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=pass
+    container_name: 'rabbitmq'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+volumes:
+  db:
+  cache:
